@@ -1,0 +1,23 @@
+library(tidyverse)
+library(readtext)
+library(quanteda)
+library(data.table)
+
+plan2020 <- readtext("~/Python Projects/dissertação/planilha2020.csv", text_field = "acordao")
+corpus_acordao <- corpus(plan2020)
+docnames(corpus_acordao) <- plan2020$nome
+stop <- c("supremo", "tribunal", "3º", "apenas", "pedido", "institui", "ministro", "senhor", "caso", "rel", "aurélio", "qualquer", "ainda", "medida", "assim", "sobre", "assim", "2º", "ii", "i", "1º", "mp", "sob", "porque", "teor", "nº", "conforme", "inteiro", "gilmar", "moraes", "alexandre", "rosa", "lúcia", "cármen", "fachin", "toffoli", "barroso", "pode", "fux", "página", "senha", "código", "2.200-2", "chaves", "eletrônico", "endereço", "acessado", "documento", "REQTE", "ADV", "DOS", "DO", "A", "MIN", "DA", "DAS", "INTDO", "Acórdão", "RELATORA","PLENÁRIO", "RELATOR","INCONSTITUCIONALIDADE","DIRETA", "AÇÃO", "DE","EMENTA", "é", "e", "ser", "assinado", "digitalmente", "art", "número", "n", "s", "v", "icp-brasil")
+tokens_acordao <- tokens(corpus_acordao, remove_punct = T, remove_symbols = T, remove_url = T, remove_numbers = T)
+token_acordao <- tokens_remove(tokens_acordao, stopwords("portuguese"))
+tok_acordao <- tokens_remove(token_acordao, pattern = stop)
+dfm_acordao <- dfm(tok_acordao, tolower = T, remove = stop, case_insensitive = T)
+dfm_acordao_tfidf <- dfm_tfidf(dfm_acordao)
+topfeatures(dfm_acordao_tfidf, 50)
+topfeatures(dfm_acordao, 50)
+tstat <- textstat_simil(dfm_acordao_tfidf, method = "cosine", margin = "documents")
+list <- as.list(tstat, sorted = TRUE, n = 3)
+df <- enframe(list)
+df_pretty <- df %>% rename(top3 = value)
+df_pretty$top3 <- vapply(df_pretty$top3, paste, collapse = " ", character(1L), USE.NAMES = T)
+mini50 <- summary(corpus, 50)
+                           
