@@ -5,6 +5,7 @@ library(data.table)
 library(topicmodels)
 library(tidytext)
 library(viridis)
+library(textmineR)
 
 
 stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje", "l", "uma", "um", "muito", "há", "temos", "dizer", 
@@ -63,8 +64,6 @@ hc <- hclust(cdist, "ward.D")  # Performs hierarchical clustering using "ward.D"
 
 clustering <- cutree(hc, 128)  # Cuts dendrogram in 128 clusters
 
-z <- as.data.frame(clustering)
-z <- tibble::rownames_to_column(z, "nome")
 
 # PLOTS DENDROGRAM
 
@@ -104,9 +103,11 @@ write.csv(cluster_summary, "clusters.csv", row.names = F)  # Exports to csv,
 # ADDS CLUSTER GROUPS TO MAIN TABLE
 
 clusters <- as.data.frame(clustering)
-clusters <- tibble::rownames_to_column(z, "nome")
+clusters <- tibble::rownames_to_column(clusters, "nome")
 
 plan2020 <- plan2020 %>%
   inner_join(clusters, by = c("nome" = "nome"))
 
 write.csv(plan2020, 'plan2020_clusters.csv', row.names = F)
+
+
