@@ -35,17 +35,21 @@ stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje"
           "santa", "catarina", "santa_catarina", "sc", "paraíba", "ceará", "rondônia", "amapá", "mato", "grosso", 
           "mt", "mato_grosso", "handle_handle", "re_re", "norte", "grande_norte", "grande" , "rn", 
           "santo", "espírito", "espírito_santo", "es", "minas", "minas_gerais", "gerais", "mg", "sul", "grande_sul",
-          "rs", "tocantins", "amazonas")
+          "rs", "tocantins", "amazonas", "xx", "pp", "a", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m",
+          "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "rj", "i", "ii", "iii", "iv", "v",
+          "vi", "vii", "viii", "ix", "xi", "xii", "xiii", "ba", "ce", "ac", "am", "rr", "pa", "ap",
+          "to", "ma", "pi", "pe", "al", "se", "sp", "pr", "go", "la", "ex"
+          )
 
 plan2020 <- read_csv("~/R Projects/stf_text_mining/planilha2020_processada.csv")  # Reads the table.
 
 dtm <- CreateDtm(doc_vec = plan2020$acordao, # character vector of documents
                  doc_names = plan2020$nome, # document names
                  ngram_window = c(1, 2), # minimum and maximum n-gram length
-                 stopword_vec = c(stopwords::stopwords("pt"), stop), # this is the default value
-                 lower = TRUE, # lowercase - this is the default value
-                 remove_punctuation = TRUE, # punctuation - this is the default
-                 remove_numbers = TRUE, # numbers - this is the default
+                 stopword_vec = c(stopwords::stopwords("pt"), stop),
+                 lower = TRUE, 
+                 remove_punctuation = TRUE, 
+                 remove_numbers = TRUE
 )
 
 tf_mat <- TermDocFreq(dtm)
@@ -100,7 +104,7 @@ cluster_summary <- data.frame(cluster = unique(clustering),
                               }),
                               stringsAsFactors = FALSE)
 
-write.csv(cluster_summary, "clusters.csv", row.names = F)  # Exports to csv,
+write.csv(cluster_summary, "clusters.csv", row.names = F)  # Exports to csv.
 
 # ADDS CLUSTER GROUPS TO MAIN TABLE
 
