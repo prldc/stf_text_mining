@@ -8,7 +8,8 @@ library(viridis)
 library(textmineR)
 
 
-stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje", "l", "uma", "um", "muito", "há", "temos", "dizer", 
+stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje", "l",
+          "uma", "um", "muito", "há", "temos", "dizer", 
           "essa", "me", "nós", "eu", "essa", "esta", "muito", "ó", "quando", "quanto", "rtj", 
           "mas", "foi", "ao", "par", "se", "88", "crfb", "c.f", "os", "que", "não", "b", "c", 
           "britto", "ilmar", "gallotti", "galvão", "silveira", "sydney", "néri", "dr", "cezar", 
@@ -26,7 +27,8 @@ stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje"
           "chaves", "eletrônico", "endereço", "acessado", "documento", "REQTE", "ADV", 
           "DOS", "DO", "A", "MIN", "DA", "DAS", "INTDO", "Acórdão", "RELATORA","PLENÁRIO", 
           "RELATOR","INCONSTITUCIONALIDADE","DIRETA", "AÇÃO", "DE","EMENTA", "é", "e", "ser", 
-          "assinado", "digitalmente", "art", "número", "n", "s", "v", "icp-brasil", "portal", "portal_autenticacao", "www_jus", 
+          "assinado", "digitalmente", "art", "número", "n", "s", "v", "icp-brasil", "portal", 
+          "portal_autenticacao", "www_jus", 
           "autenticacao", "br_portal", "www", "http_www", "ministério_público", "jus_br",
           "autenticacao_autenticardocumento", "autenticardocumento", "autenticacao_autenticardocumento, 
           autenticardocumento", "autenticardocumento_asp", "net", "hdl", "https", "net_https", "https_hdl",
@@ -48,7 +50,7 @@ dtm <- CreateDtm(doc_vec = plan2020$acordao, # character vector of documents
 
 tf_mat <- TermDocFreq(dtm)
 
-tfidf <- t(dtm[ , tf_mat$term ]) * tf_mat$idf    # Calculates tf-idf.
+tfidf <- t(dtm[ , tf_mat$term ]) * tf_mat$idf   # Calculates tf-idf.
 
 tfidf <- t(tfidf)
 
@@ -108,6 +110,6 @@ clusters <- tibble::rownames_to_column(clusters, "nome")
 plan2020 <- plan2020 %>%
   inner_join(clusters, by = c("nome" = "nome"))
 
-write.csv(plan2020, 'plan2020_clusters.csv', row.names = F)
+# write.csv(plan2020, 'plan2020_clusters.csv', row.names = F)
 
 
