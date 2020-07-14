@@ -68,7 +68,7 @@ hc <- hclust(cdist, "ward.D")  # Performs hierarchical clustering using "ward.D"
 
 # clustering <- cutree(hc, h = 0.3)  # Cuts dendrogram at height 0.3
 
-clustering <- cutree(hc, 128)  # Cuts dendrogram in 128 clusters
+cluster <- cutree(hc, h = 128)  # Cuts dendrogram in 128 clusters
 
 
 # PLOTS DENDROGRAM
@@ -108,12 +108,12 @@ write.csv(cluster_summary, "clusters.csv", row.names = F)  # Exports to csv.
 
 # ADDS CLUSTER GROUPS TO MAIN TABLE
 
-clusters <- as.data.frame(clustering)
+clusters <- as.data.frame(cluster)
 clusters <- tibble::rownames_to_column(clusters, "nome")
 
 plan2020 <- plan2020 %>%
   inner_join(clusters, by = c("nome" = "nome"))
 
-# write.csv(plan2020, 'plan2020_clusters.csv', row.names = F)
+write.csv(plan2020, 'plan2020_clusters.csv', row.names = F)
 
 
