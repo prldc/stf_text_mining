@@ -1,10 +1,11 @@
-library(tidyverse)
-library(readtext)
-library(quanteda)
-library(data.table)
-library(topicmodels)
-library(tidytext)
-library(viridis)
+require(tidyverse)
+require(readtext)
+require(quanteda)
+require(data.table)
+require(topicmodels)
+require(tidytext)
+require(viridis)
+require(textmineR)
 
 # CREATING THE LDA MODEL:
 
