@@ -9,9 +9,10 @@ require(textmineR)
 
 # CREATING THE LDA MODEL:
 
-stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje", "l", "uma", "um", "muito", "há", "temos", "dizer", 
+stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje", "l",
+          "uma", "um", "muito", "há", "temos", "dizer", 
           "essa", "me", "nós", "eu", "essa", "esta", "muito", "ó", "quando", "quanto", "rtj", 
-          "mas", "foi", "ao", "par", "se", "88", "crfb", "c.f", "os", "que", "não", "b", "c", 
+          "mas", "foi", "ao", "par", "se", "88", "crfb", "c.f", "os", "que", "não",  
           "britto", "ilmar", "gallotti", "galvão", "silveira", "sydney", "néri", "dr", "cezar", 
           "velloso","lewandowski", "ministra", "senhora", "paulo", "5º", "iii", "janeiro", 
           "celso", "mello", "iv", "r", "outro", "voto", "luiz", "roberto", "mendes", "p", "4º", "dj",  
@@ -27,14 +28,18 @@ stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje"
           "chaves", "eletrônico", "endereço", "acessado", "documento", "REQTE", "ADV", 
           "DOS", "DO", "A", "MIN", "DA", "DAS", "INTDO", "Acórdão", "RELATORA","PLENÁRIO", 
           "RELATOR","INCONSTITUCIONALIDADE","DIRETA", "AÇÃO", "DE","EMENTA", "é", "e", "ser", 
-          "assinado", "digitalmente", "art", "número", "n", "s", "v", "icp-brasil", "portal", "portal_autenticacao", "www_jus", 
+          "assinado", "digitalmente", "art", "número", "icp-brasil", "portal", 
+          "portal_autenticacao", "www_jus", 
           "autenticacao", "br_portal", "www", "http_www", "ministério_público", "jus_br",
           "autenticacao_autenticardocumento", "autenticardocumento", "autenticacao_autenticardocumento, 
           autenticardocumento", "autenticardocumento_asp", "net", "hdl", "https", "net_https", "https_hdl",
           "santa", "catarina", "santa_catarina", "sc", "paraíba", "ceará", "rondônia", "amapá", "mato", "grosso", 
           "mt", "mato_grosso", "handle_handle", "re_re", "norte", "grande_norte", "grande" , "rn", 
           "santo", "espírito", "espírito_santo", "es", "minas", "minas_gerais", "gerais", "mg", "sul", "grande_sul",
-          "rs", "tocantins", "amazonas")
+          "rs", "tocantins", "amazonas", "xx", "pp", "a", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m",
+          "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "rj", "i", "ii", "iii", "iv", "v",
+          "vi", "vii", "viii", "ix", "xi", "xii", "xiii", "ba", "ce", "ac", "am", "rr", "pa", "ap", "xiv",
+          "to", "ma", "pi", "pe", "al", "se", "sp", "pr", "go", "la", "ex", "ª")
 
 plan2020 <- read_csv("~/R Projects/stf_text_mining/planilha2020_processada_bytopic.csv")
 plan2020_text <- readtext("~/R Projects/stf_text_mining/planilha2020_processada.csv", text_field = "acordao")  # Indicates the column with the full extent of the judicial opinion as the text field.
