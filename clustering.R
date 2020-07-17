@@ -110,7 +110,7 @@ rect.hclust(hc, 1922, border = "deepskyblue")  # Draws clusters.
 # CREATES LINES AT HEIGHT h:
 
 # abline(h= 0,col = 'deepskyblue')
-# abline(h = 1,col = 'red')
+abline(1024,col = 'red')
 # abline(h= 14,col = 'green')
 
 
@@ -227,5 +227,4 @@ plan2020 <- plan2020 %>% mutate(periodo =
 # EXPORTING TO CSV
 
 write.csv(plan2020, 'planilha2020_clusters.csv', row.names = F)
-
 
