@@ -1,5 +1,3 @@
-## RUN ONLY AFTER further_text_cleaning.R
-
 require(tidyverse)
 require(readtext)
 require(quanteda)
@@ -44,7 +42,7 @@ stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje"
           "to", "ma", "pi", "pe", "al", "se", "sp", "pr", "go", "la", "ex", "ª")
 
 
-plan2020 <- read_csv("~/R Projects/stf_text_mining/planilha2020_processada.csv")  # Reads the table.
+plan2020 <- read_csv("~/R Projects/stf_text_mining/planilha2020_processada-duplicados.csv")  # Reads the table.
 
 dtm <- CreateDtm(doc_vec = plan2020$acordao, # character vector of documents
                  doc_names = plan2020$nome, # document names
@@ -80,17 +78,62 @@ cluster_64 <- cutree(hc, 64)  # Cuts dendrogram in 64 clusters
 cluster_128 <- cutree(hc, 128)  # Cuts dendrogram in 128 clusters
 cluster_256 <- cutree(hc, 256)  # Cuts dendrogram in 256 clusters
 cluster_512 <- cutree(hc, 512)  # Cuts dendrogram in 512 clusters
-cluster_50pct <- cutree(hc, 1068)  # Cuts dendrogram in 1068 clusters
-cluster_60pct <- cutree(hc, 1287)  # Cuts dendrogram in 1287 clusters
-cluster_70pct <- cutree(hc, 1495)  # Cuts dendrogram in 1496 clusters
-cluster_80pct <- cutree(hc, 1709)  # Cuts dendrogram in 1709 clusters
-cluster_90pct <- cutree(hc, 1922)  # Cuts dendrogram in 1922 clusters
+cluster_50pct <- cutree(hc, 900)  # Cuts dendrogram in 50% 
+cluster_60pct <- cutree(hc, 1081)  # Cuts dendrogram in 40%
+cluster_70pct <- cutree(hc, 1261)  # Cuts dendrogram in 30% 
+cluster_80pct <- cutree(hc, 1441)  # Cuts dendrogram in 20%
+cluster_90pct <- cutree(hc, 1621)  # Cuts dendrogram in 10% 
 
 
 # PLOTS DENDROGRAM
 
 plot(hc, main = "Clusters de ADIs",
      ylab = "h", xlab = "", labels=FALSE)
+
+rect.hclust(hc, 2, border = "purple")  # Draws clusters.
+rect.hclust(hc, 4, border = "red")  # Draws clusters.
+rect.hclust(hc, 8, border = "blue")  # Draws clusters.
+rect.hclust(hc, 16, border = "orange")  # Draws clusters.
+rect.hclust(hc, 32, border = "green")  # Draws clusters.
+rect.hclust(hc, 64, border = "firebrick")  # Draws clusters.
+rect.hclust(hc, 128, border = "turquoise")  # Draws clusters.
+rect.hclust(hc, 256, border = "pink")  # Draws clusters.
+rect.hclust(hc, 512, border = "brown")  # Draws clusters.
+rect.hclust(hc, 1081, border = "dark green")  # Draws clusters.
+# rect.hclust(hc, 1287, border = "orange")  # Draws clusters.
+# rect.hclust(hc, 1495, border = "blue")  # Draws clusters.
+# rect.hclust(hc, 1709, border = "red")  # Draws clusters.
+rect.hclust(hc, 1621, border = "deepskyblue")  # Draws clusters.
+
+
+
+
+# CREATES LINES AT HEIGHT h:
+
+# abline(h= 0,col = 'deepskyblue')
+# abline(1024, col = 'red')
+# abline(h= 14,col = 'green')
+
+
+# TOP 10 MOST FREQUENT WORDS PER CLUSTER
+
+cluster = cluster_90pct
+p_words <- colSums(dtm) / sum(dtm)
+
+cluster_words <- lapply(unique(cluster), function(x){
+  rows <- dtm[ cluster == x , ]
+  rows <- rows[ , colSums(rows) > 0 ]
+  colSums(rows) / sum(rows) - p_words[ colnames(rows) ]
+})
+
+cluster_summary <- data.frame(cluster = unique(cluster),
+                              size = as.numeric(table(cluster)),
+                              top_words = sapply(cluster_words, function(d){
+                                paste(
+                                  names(d)[ order(d, decreasing = TRUE) ][ 1:10 ],
+                                  collapse = ", ")
+                              }),
+                              stringsAsFactors = FALSE)
 
 
 # CONVERTS CLUSTERS TO TIBBLES
@@ -155,35 +198,42 @@ plan2020 <- plan2020 %>%
   inner_join(clusters_80pct, by = c("nome" = "nome")) %>%
   inner_join(clusters_90pct, by = c("nome" = "nome"))
 
-# SELECTING DUPLICATED CASES USING A COMBINATION OF TEXT SIMILARITY AND CASE DATE
+write.csv(plan2020, 'planilha2020_processada-dupl_clusters.csv', row.names = F)
+write.xlsx(plan2020, 'planilha2020_processada-dupl_clusters.xlsx', row.names = F)
 
-duplicated_clusters <- plan2020 %>% 
-  mutate(duplicado2 = case_when(duplicated(plan2020$cluster_80pct) ~ T))
+# EXPORTING cluster_128 FOR QUALITATIVE ANALYSIS
 
-only_duplicates <- duplicated_clusters %>% filter(duplicado2 == T)
-clusters_with_duplicates <- c(only_duplicates$cluster_80pct)
+nome_ementa <- plan2020 %>% filter(duplicado == F) %>% select(nome, data_julgamento, ementa, tipo_julgamento, cluster_128)
+nome_ementa <- nome_ementa %>% inner_join(cluster_summary, by = c("cluster_128" = "cluster"))
 
-duplicated_clusters <- duplicated_clusters %>% filter(cluster_80pct %in% clusters_with_duplicates)
+write.xlsx(nome_ementa, 'clusters_128-2.xlsx', row.names = F)
 
-duplicated_clusters <- duplicated_clusters %>% 
-  mutate(duplicado2 = case_when(duplicated(duplicated_clusters$data_julgamento)  ~ T))
-duplicated_clusters <- duplicated_clusters %>% select(nome, duplicado2)
+p90 <- plan2020 %>% filter(duplicado == F) %>% select(nome, data_julgamento, ementa, tipo_julgamento, cluster_90pct)
+write.xlsx(p90, 'clusters-90pct.xlsx', row.names = F)
 
+lista <- plan2020 %>% filter(tipo_julgamento == "lista")
+n_distinct(lista$cluster_128)
+n_distinct(lista$cluster_90pct)
+taxa_128_lista <- nrow(lista)/n_distinct(lista$cluster_128)
+taxa_90pct_lista <- nrow(lista)/n_distinct(lista$cluster_90pct)
+taxa_unanimidade_lista <- sum(lista$unanimidade)/nrow(lista)
+virtual <- plan2020 %>% filter(tipo_julgamento == "virtual")
+n_distinct(virtual$cluster_128)
+n_distinct(virtual$cluster_90pct)
+taxa_unanimidade_virtual <- sum(virtual$unanimidade)/nrow(virtual)
+taxa_128_virtual <- nrow(virtual)/n_distinct(virtual$cluster_128)
+taxa_90pct_virtual <- nrow(virtual)/n_distinct(virtual$cluster_90pct)
+tradicional <- plan2020 %>% filter(tipo_julgamento == "tradicional", periodo == 5)
+n_distinct(tradicional$cluster_128)
+n_distinct(tradicional$cluster_90pct)
+taxa_128_trad <- nrow(tradicional)/n_distinct(tradicional$cluster_128)
+taxa_90pct_trad <- nrow(tradicional)/n_distinct(tradicional$cluster_90pct)
+taxa_unanimidade_trad <- sum(tradicional$unanimidade)/nrow(tradicional)
 
-plan2020 <- plan2020 %>% 
-  left_join(duplicated_clusters, by = "nome")
+# EXPORTING cluster_128 FOR QUALITATIVE ANALYSIS
 
-plan2020 <- plan2020 %>% 
-  mutate(duplicado = if_else(is.na(duplicado2), true =F, false = T)) %>% select(-duplicado2)
+nome_ementa <- plan2020 %>% filter(duplicado == F) %>% select(nome, data_julgamento, ementa, tipo_julgamento, cluster_128)
+nome_ementa <- nome_ementa %>% inner_join(cluster_summary, by = c("cluster_128" = "cluster"))
 
-
-# EXPORTING VERSION WITH NO DUPLICATES FOR FURTHER CLUSTERIZATION
-
-plan2020 <- plan2020 %>% filter(duplicado == F)
-drop_cols <- c('cluster_2', 'cluster_4', 'cluster_8', 'cluster_16', 'cluster_32',
-               'cluster_64', 'cluster_128', 'cluster_256', 'cluster_512',
-               'cluster_50pct', 'cluster_60pct', 'cluster_70pct', 'cluster_80pct', 'cluster_90pct', 'duplicado')
-plan2020 <- plan2020 %>% select(-one_of(drop_cols))
-write.csv(plan2020, 'planilha2020_processada*.csv', row.names = F)
-write.xlsx(plan2020, 'planilha2020_processada*.xlsx', row.names = F)
-
+write.csv(nome_ementa, "clusters.csv", row.names = F)  # Exports to csv.
+write.xlsx(nome_ementa, 'clusters_128.xlsx', row.names = F)
