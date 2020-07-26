@@ -1,3 +1,5 @@
+# RUN AFTER text_cleaning.R
+
 import pandas as pd
 import cleantext
 
@@ -9,3 +11,5 @@ df.acordao = df.acordao.str.replace(pat=r'(?i)^.*?(?=ementa)', repl="", case=Fal
 df.decisao = df.decisao.apply(cleantext.clean, fix_unicode=True, to_ascii=False, no_line_breaks=True, lower=False)
 df.to_excel('planilha2020_processada.xlsx', index = False)
 df.to_csv('planilha2020_processada.csv', index=False)
+
+# NOW RUN further_text_cleaning.R

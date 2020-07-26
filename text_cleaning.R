@@ -1,10 +1,20 @@
+# RUN AFTER preprocessing.py
+
 require(tidyverse)
 require(data.table)
 require(textmineR)
 require(openxlsx)
 require(reticulate)
 
-plan2020 <- read.csv('planilha2020.csv')
+plan <- read.csv('planilha_processada.csv')
+
+# FILTERING CASES JUDGED BEFORE 2020:
+
+plan2020 <- plan %>% filter(plan$data_julgamento < as.Date('2020-01-01'))
+
+# REMOVING DUPLICATES:
+
+plan2020 <- plan2020 %>% distinct()
 
 # FINDING CITED ADI CASES:
 
@@ -39,6 +49,12 @@ plan2020 <- plan2020 %>%
 
 plan2020 <- plan2020 %>% 
   mutate(virtual = str_detect(plan2020$decisao, "Sessão Virtual"))
+
+# CONVERTING 'ocr' AND 'lista' TO BOOLEAN:
+
+plan2020 <- plan2020 %>%
+  mutate(ocr = as.logical(ocr)) %>%
+  mutate(lista = as.logical(lista))
 
 # CLASSIFYING OPINIONS BY WHETHER THEY WERE JUDGED REMOTELY ("virtual"), FAST-TRACKED ("lista") OR NEITHER ("tradicional"):
 

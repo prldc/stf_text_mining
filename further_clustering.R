@@ -1,3 +1,5 @@
+## RUN ONLY AFTER further_text_cleaning.R
+
 require(tidyverse)
 require(readtext)
 require(quanteda)
@@ -42,7 +44,7 @@ stop <- c("poder", "cf", "moreira", "alves", "tribunal", "infraestrutura", "dje"
           "to", "ma", "pi", "pe", "al", "se", "sp", "pr", "go", "la", "ex", "ª")
 
 
-plan2020 <- read_csv("~/R Projects/stf_text_mining/planilha2020_processada-duplicados.csv")  # Reads the table.
+plan2020 <- read_csv("~/R Projects/stf_text_mining/planilha2020_processada*.csv")  # Reads the table.
 
 dtm <- CreateDtm(doc_vec = plan2020$acordao, # character vector of documents
                  doc_names = plan2020$nome, # document names
@@ -97,13 +99,13 @@ rect.hclust(hc, 16, border = "orange")  # Draws clusters.
 rect.hclust(hc, 32, border = "green")  # Draws clusters.
 rect.hclust(hc, 64, border = "firebrick")  # Draws clusters.
 rect.hclust(hc, 128, border = "turquoise")  # Draws clusters.
-rect.hclust(hc, 256, border = "pink")  # Draws clusters.
-rect.hclust(hc, 512, border = "brown")  # Draws clusters.
-rect.hclust(hc, 1081, border = "dark green")  # Draws clusters.
+# rect.hclust(hc, 256, border = "pink")  # Draws clusters.
+# rect.hclust(hc, 512, border = "brown")  # Draws clusters.
+# rect.hclust(hc, 1081, border = "dark green")  # Draws clusters.
 # rect.hclust(hc, 1287, border = "orange")  # Draws clusters.
 # rect.hclust(hc, 1495, border = "blue")  # Draws clusters.
 # rect.hclust(hc, 1709, border = "red")  # Draws clusters.
-rect.hclust(hc, 1621, border = "deepskyblue")  # Draws clusters.
+# rect.hclust(hc, 1621, border = "deepskyblue")  # Draws clusters.
 
 
 
@@ -117,23 +119,23 @@ rect.hclust(hc, 1621, border = "deepskyblue")  # Draws clusters.
 
 # TOP 10 MOST FREQUENT WORDS PER CLUSTER
 
-cluster = cluster_90pct
-p_words <- colSums(dtm) / sum(dtm)
-
-cluster_words <- lapply(unique(cluster), function(x){
-  rows <- dtm[ cluster == x , ]
-  rows <- rows[ , colSums(rows) > 0 ]
-  colSums(rows) / sum(rows) - p_words[ colnames(rows) ]
-})
-
-cluster_summary <- data.frame(cluster = unique(cluster),
-                              size = as.numeric(table(cluster)),
-                              top_words = sapply(cluster_words, function(d){
-                                paste(
-                                  names(d)[ order(d, decreasing = TRUE) ][ 1:10 ],
-                                  collapse = ", ")
-                              }),
-                              stringsAsFactors = FALSE)
+# cluster = cluster_90pct
+# p_words <- colSums(dtm) / sum(dtm)
+# 
+# cluster_words <- lapply(unique(cluster), function(x){
+#   rows <- dtm[ cluster == x , ]
+#   rows <- rows[ , colSums(rows) > 0 ]
+#   colSums(rows) / sum(rows) - p_words[ colnames(rows) ]
+# })
+# 
+# cluster_summary <- data.frame(cluster = unique(cluster),
+#                               size = as.numeric(table(cluster)),
+#                               top_words = sapply(cluster_words, function(d){
+#                                 paste(
+#                                   names(d)[ order(d, decreasing = TRUE) ][ 1:10 ],
+#                                   collapse = ", ")
+#                               }),
+#                               stringsAsFactors = FALSE)
 
 
 # CONVERTS CLUSTERS TO TIBBLES
@@ -198,18 +200,16 @@ plan2020 <- plan2020 %>%
   inner_join(clusters_80pct, by = c("nome" = "nome")) %>%
   inner_join(clusters_90pct, by = c("nome" = "nome"))
 
-write.csv(plan2020, 'planilha2020_processada-dupl_clusters.csv', row.names = F)
-write.xlsx(plan2020, 'planilha2020_processada-dupl_clusters.xlsx', row.names = F)
+write.csv(plan2020, 'planilha2020_processada*.csv', row.names = F)
+write.xlsx(plan2020, 'planilha2020_processada*.xlsx', row.names = F)
 
 # EXPORTING cluster_128 FOR QUALITATIVE ANALYSIS
 
-nome_ementa <- plan2020 %>% filter(duplicado == F) %>% select(nome, data_julgamento, ementa, tipo_julgamento, cluster_128)
+nome_ementa <- plan2020 %>% filter(duplicado == F) %>% select(nome, data_julgamento, ementa, tipo_julgamento, cluster_128, dispositivo, resultado)
 nome_ementa <- nome_ementa %>% inner_join(cluster_summary, by = c("cluster_128" = "cluster"))
 
-write.xlsx(nome_ementa, 'clusters_128-2.xlsx', row.names = F)
+write.xlsx(nome_ementa, 'clusters_128.xlsx', row.names = F)
 
-p90 <- plan2020 %>% filter(duplicado == F) %>% select(nome, data_julgamento, ementa, tipo_julgamento, cluster_90pct)
-write.xlsx(p90, 'clusters-90pct.xlsx', row.names = F)
 
 lista <- plan2020 %>% filter(tipo_julgamento == "lista")
 n_distinct(lista$cluster_128)
@@ -230,10 +230,6 @@ taxa_128_trad <- nrow(tradicional)/n_distinct(tradicional$cluster_128)
 taxa_90pct_trad <- nrow(tradicional)/n_distinct(tradicional$cluster_90pct)
 taxa_unanimidade_trad <- sum(tradicional$unanimidade)/nrow(tradicional)
 
-# EXPORTING cluster_128 FOR QUALITATIVE ANALYSIS
 
-nome_ementa <- plan2020 %>% filter(duplicado == F) %>% select(nome, data_julgamento, ementa, tipo_julgamento, cluster_128)
-nome_ementa <- nome_ementa %>% inner_join(cluster_summary, by = c("cluster_128" = "cluster"))
 
-write.csv(nome_ementa, "clusters.csv", row.names = F)  # Exports to csv.
-write.xlsx(nome_ementa, 'clusters_128.xlsx', row.names = F)
+
